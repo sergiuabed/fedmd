@@ -54,7 +54,7 @@ def read_data_splits(train_data_dir, test_data_dir, alpha=None):
     # the test dataset in the .json file is assigned to client 100
     # here this test dataset is passed to all clients to be used for accuracy
 
-    return train_clients, train_data, test_data[100]
+    return train_clients, train_data, test_data["100"]
 
 #def create_clients(users, train_data, test_data, models):
 #    clients = []
