@@ -49,7 +49,7 @@ def save_model(model:nn.Module, path:str, epoch:int=None, accuracy:float=None, l
 
 def load_model(net:nn.Module, path:str) -> tuple[float, int, float]:
     data = torch.load(path)
-    print(net.load_state_dict(data["net"])) 
+    #print(net.load_state_dict(data["net"])) 
     return data["accuracy"], data["epoch"], data["lr"]
 
 def model_size(net:nn.Module) -> int:
