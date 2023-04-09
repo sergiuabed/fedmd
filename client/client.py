@@ -4,7 +4,7 @@ import torch.distributions.constraints as constraints
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from models_implementations.train_on_cifar import _training
+from fedmd.models_implementations.train_on_cifar import _training
 import os
 
 LOCAL_EPOCH = 2
