@@ -1,9 +1,6 @@
 import json
 import os
 from collections import defaultdict
-from client.client import Client
-from client.private_dataloader import ClientPrivateDataset
-from torch.utils.data import DataLoader
 
 BATCH_SIZE = 128
 NUM_WORKERS = 4
