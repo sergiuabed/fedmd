@@ -112,7 +112,8 @@ def _training(
     criterion = nn.CrossEntropyLoss()
 
     # Choose parameters to optimize
-    parameters_to_optimize = net.parameters()
+    #parameters_to_optimize = net.parameters()
+    parameters_to_optimize = [p for p in net.parameters() if p.requires_grad]
 
     # Define optimizer
     optimizer = optim.SGD(
