@@ -156,19 +156,7 @@ def _training(
             optimizer.zero_grad()  # Zero-ing the gradients
 
             # Forward pass to the network
-            outputs = net(images)
-
-
-            print('labels:')
-            print(labels[0])
-            print()
-            print()
-            print('outputs:')
-            print(outputs[0])
-            print()
-            print()
-            print(len(tr_set))
-            
+            outputs = net(images)            
 
             # Compute loss based on output and ground truth
             loss = criterion(outputs, labels)
