@@ -158,6 +158,18 @@ def _training(
             # Forward pass to the network
             outputs = net(images)
 
+
+            print('labels:')
+            print(labels[0])
+            print()
+            print()
+            print('outputs:')
+            print(outputs[0])
+            print()
+            print()
+            print(len(tr_set))
+            
+
             # Compute loss based on output and ground truth
             loss = criterion(outputs, labels)
             sum_losses += loss
