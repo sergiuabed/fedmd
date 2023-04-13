@@ -44,7 +44,7 @@ class Client:
             idx = data[0]
             x = data[1]
             x = x.to(self.device)
-            self.current_local_scores[idx, :] = self(x).detach()
+            self.current_local_scores[idx, :] = self._model(x).detach()
 
         return self.current_local_scores
 
