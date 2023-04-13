@@ -59,10 +59,15 @@ class Server:
     #        self.rounds_performed += 1
 
     def perform_round(self):
+        print("Clients begin computing the scores\n")
         self.receive()
+        print("Server computes consensus\n")
         self.update()
+        print("Server distributes the consensus\n")
+        print("Clients start digesting the consensus and training on their private data for few epochs\n")
         self.distribute()   #this will also trigger the clients to "digest" the consensus and
                             #revisit their private dataset
+        print("Perform validation on every client")
         val_res = self.clients_validation()
 
         #select new clients for next round
