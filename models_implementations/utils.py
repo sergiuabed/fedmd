@@ -1,9 +1,21 @@
+"""This file contains useful functions"""
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
 def plot_stats(x: list, data:list[list], save_path:str, title:str=None, x_label:str=None, y_label:str=None, data_labels:list[str]=None, x_lim:tuple=None, y_lim:tuple=None ):
-
+    """
+    Plot multiple data series that share the same abscissa.
+        - x : a list of values for the abscissa
+        - data: a list of lists of values to be plotted
+        - save_path: the path of the file in which to save the plot
+        - title: title of the plot
+        - x_label: label of the x axis
+        - y_label: label of the y axis
+        - data_label: list of labels for each data series
+        - x_lim: limits of the x axis
+        - y_lim: limits of the y axis
+    """
     plt.figure()
     
     if title is not None:
@@ -39,30 +51,39 @@ def plot_stats(x: list, data:list[list], save_path:str, title:str=None, x_label:
 
 
 def save_model(model:nn.Module, path:str, epoch:int=None, accuracy:float=None, lr:float=None):
-
-    state = {'net': model.state_dict(),
+    """
+    Saves the state of a model as a dictionary.
+        - model: the model whose state needs to be saved
+        - path: path in which to save the state 
+        - epoch: epoch number, useful for checkpointing
+        - accuracy: accuracy of current model
+        - lr: learning rate, useful for checkpointing
+    """
+    state = {'weights': model.state_dict(),
                 'accuracy': accuracy,
                 'epoch': epoch,
                 'lr': lr,
             }
     torch.save(state, path)
 
-def load_model(net:nn.Module, path:str) -> tuple[float, int, float]:
-    data = torch.load(path)
-    #print(net.load_state_dict(data["net"])) 
-    return data["accuracy"], data["epoch"], data["lr"]
+def load_model(path:str) -> dict:
+    """
+    Load a model's state; it's the counterpart of the function "save_model".
+        - path: path of the state
+
+    Return a dictionary with the following keys:
+        - weights: model's parameters, to be loaded with the function "nn.Module.load_state_dict"
+        - accuracy: model's accuracy
+        - epoch: epoch number, useful for checkpointing
+        - lr: learning rate, useful for checkpointing
+    """
+    return torch.load(path)
 
 def model_size(net:nn.Module) -> int:
+    """
+    Return a model's number of parameters.
+    """
     tot_size = 0
     for param in net.parameters():
         tot_size += param.size()[0]
     return tot_size
-
-def read_stats(file_path:str) -> tuple[list]:
-    with open(file_path, "r") as f:
-        f.readline()
-        lines = f.readlines()
-    values = [line.rstrip("\n").split(",") for line in lines ]
-    stats_tuples = [(int(v[0]), float(v[1]), float(v[2])) for v in values ]
-    epochs, loss, acc = [list(i) for i in zip(*stats_tuples)]
-    return epochs, loss, acc
