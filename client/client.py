@@ -23,7 +23,7 @@ class Client:
                  private_validation_dataloader, current_consensus, model, model_architecture, device=None):
         self._model = model
         self.model_architecture = model_architecture
-        self.id = client_id
+        self.client_id = client_id
         self.device = device
 
         self.public_train_dataloader = public_train_dataloader
