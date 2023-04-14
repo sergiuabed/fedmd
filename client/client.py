@@ -41,12 +41,10 @@ class Client:
 
     def upload(self):
         for data in self.public_train_dataloader:
-            idx = data[0]
-            x = data[1]
+            idx = data[1]
+            x = data[0]
             x = x.to(self.device)
-            print(idx)
-            print()
-            print(x)
+
             self.current_local_scores[idx, :] = self._model(x).detach()
 
         return self.current_local_scores
