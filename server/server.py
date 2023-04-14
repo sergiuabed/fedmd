@@ -67,7 +67,7 @@ class Server:
         print("Clients start digesting the consensus and training on their private data for few epochs\n")
         self.distribute()   #this will also trigger the clients to "digest" the consensus and
                             #revisit their private dataset
-        print("Perform validation on every client")
+        print("Perform validation on every client\n")
         val_res = self.clients_validation()
 
         #select new clients for next round
@@ -89,6 +89,7 @@ class Server:
 
         #self.selected_clients = selected_clients
         self.selected_clients = [c for c in self.clients if c.client_id in selected_clients]
+        print(f"Selected clients: {selected_clients}\n")
         return selected_clients
 
     def receive(self):
@@ -108,6 +109,7 @@ class Server:
         val_res = {}
         for c in self.selected_clients:
             val_res[c.client_id] = c.validation_acc()
+            print(f"Client {c.client_id} accuracy: {val_res[c.client_id]}\n")
         
         return val_res
 

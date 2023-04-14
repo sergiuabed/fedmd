@@ -40,6 +40,7 @@ class Client:
         self.losses = []
 
     def upload(self):
+        print(f"Client {self.client_id} starts computing scores.\n")
         self._model.to(self.device)
         for data in self.public_train_dataloader:
             idx = data[1]
@@ -52,7 +53,9 @@ class Client:
 
     def download(self, current_consensus): #calling this also triggers digest and revisit(i.e. private_train)
         self.current_consensus = current_consensus
+        print(f"Client {self.client_id} starts digest phase\n")
         self.digest()
+        print(f"Client {self.client_id} revisits its private data for {LOCAL_EPOCH} epochs\n")
         self.private_train()
 
     def private_train(self):
