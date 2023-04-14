@@ -60,7 +60,7 @@ class Client:
 
     def private_train(self):
         _training(
-            self.net, self.private_train_dataloader, self.private_validation_dataloader, LOCAL_EPOCH , LR, MOMENTUM, WEIGHT_DECAY, FILE_PATH
+            self._model, self.private_train_dataloader, self.private_validation_dataloader, LOCAL_EPOCH , LR, MOMENTUM, WEIGHT_DECAY, FILE_PATH
         )
 
         os.remove(FILE_PATH + "/best_model.pth")
