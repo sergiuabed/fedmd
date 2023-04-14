@@ -75,7 +75,7 @@ class Client:
             x = data[0].to(self.device)
             y_consensus = self.current_consensus[idx, :].to(self.device)
             self.consensus_optimizer.zero_grad()
-            y_pred = self(x)
+            y_pred = self._model(x)
             loss = self.consensus_loss_func(y_pred, y_consensus)
             loss.backward()
             self.consensus_optimizer.step()
