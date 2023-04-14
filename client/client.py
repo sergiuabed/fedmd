@@ -66,7 +66,7 @@ class Client:
     def digest(self):   # i.e. approach consensus
         running_loss = 0
 
-        self._model(self.device)
+        self._model.to(self.device)
         for data in self.public_training_dataloader:
             idx = data[0]
             x = data[1].to(self.device)
