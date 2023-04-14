@@ -70,9 +70,9 @@ class Client:
         running_loss = 0
 
         self._model.to(self.device)
-        for data in self.public_training_dataloader:
-            idx = data[0]
-            x = data[1].to(self.device)
+        for data in self.public_train_dataloader:
+            idx = data[1]
+            x = data[0].to(self.device)
             y_consensus = self.current_consensus[idx, :].to(self.device)
             self.consensus_optimizer.zero_grad()
             y_pred = self(x)
