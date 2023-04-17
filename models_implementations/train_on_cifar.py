@@ -116,7 +116,7 @@ def _training(
 
     # Define scheduler
     scheduler = optim.lr_scheduler.CosineAnnealingLR(
-        optimizer=optimizer, T_max=num_epochs-cur_epoch, eta_min=1e-2
+        optimizer=optimizer, T_max=num_epochs-cur_epoch, eta_min=0.09#eta_min changed from 1e-2
     )
     
     # Send to device
