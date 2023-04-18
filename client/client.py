@@ -7,7 +7,7 @@ import torch.optim as optim
 from fedmd.models_implementations.train_on_cifar import _training, _validation
 import os
 
-LOCAL_EPOCH = 5
+LOCAL_EPOCH = 20
 LR = 0.1
 WEIGHT_DECAY = 0.0001
 MOMENTUM = 0.9
