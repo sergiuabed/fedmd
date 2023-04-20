@@ -54,7 +54,7 @@ class Client:
 
             #self.current_local_scores.append(self._model(x))
             
-            self.current_local_scores[i] = self._model(x)
+            self.current_local_scores[i] = self._model(x).detach()
             i += 1
 
         return self.current_local_scores
