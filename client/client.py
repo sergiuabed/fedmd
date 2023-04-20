@@ -82,6 +82,7 @@ class Client:
         for data in self.public_train_dataloader:
             x = data[0].to(self.device)
             y_consensus = self.current_consensus[i].to(self.device)
+            self._model.train()
             self.consensus_optimizer.zero_grad()
             y_pred = self._model(x)
             loss = self.consensus_loss_func(y_pred, y_consensus)
