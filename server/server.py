@@ -117,8 +117,8 @@ class Server:
 
         self.public_subset_dataloader = public_subset_dataloader
 
-        for c in self.selected_clients.keys():
-            self.selected_clients[c].public_train_dataloader = public_subset_dataloader
+        for c in self.selected_clients:
+            c.public_train_dataloader = public_subset_dataloader
 
     def receive(self):
         self.clients_scores = [client.upload() for client in self.selected_clients]
