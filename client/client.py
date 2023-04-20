@@ -7,15 +7,12 @@ import torch.optim as optim
 from fedmd.models_implementations.train_on_cifar import _training, _validation
 import os
 
-LOCAL_EPOCH = 20
+LOCAL_EPOCH = 5
 LR = 0.1
 WEIGHT_DECAY = 0.0001
 MOMENTUM = 0.9
 
 FILE_PATH = os.getcwd() + '/logs'   # path for storing model checkpoints and logs on intermediary states of the model
-
-def initialize_scores(len_public_dataloader, output_dim, device):
-    return torch.ones((len_public_dataloader, output_dim)).to(device) * float("inf")
 
 class Client:
 
@@ -26,11 +23,12 @@ class Client:
         self.client_id = client_id
         self.device = device
 
-        self.public_train_dataloader = public_train_dataloader
+        self.public_train_dataloader = public_train_dataloader  #during collaboration training, this attribute stores the subset of the public
+                                                                #dataset on which the scores (logits) will be computed during a round
         self.private_train_dataloader = private_train_dataloader
         self.private_validation_dataloader = private_validation_dataloader
 
-        self.current_local_scores = initialize_scores(len(public_train_dataloader), 100, device)
+        self.current_local_scores = None
         self.current_consensus = current_consensus
 
         self.consensus_loss_func = nn.L1Loss()
@@ -42,12 +40,22 @@ class Client:
     def upload(self):
         print(f"Client {self.client_id} starts computing scores.\n")
         self._model.to(self.device)
+
+        nr_batches = len(self.public_train_dataloader)
+        size_batch = self.public_train_dataloader.batch_size
+        nr_classes = 100
+        
+        self.current_local_scores = torch.zeros((nr_batches, size_batch, nr_classes))
+
+        i = 0
         for data in self.public_train_dataloader:
-            idx = data[1]
             x = data[0]
             x = x.to(self.device)
 
-            self.current_local_scores[idx, :] = self._model(x).detach()
+            #self.current_local_scores.append(self._model(x))
+            
+            self.current_local_scores[i] = self._model(x)
+            i += 1
 
         return self.current_local_scores
 
@@ -70,10 +78,10 @@ class Client:
         running_loss = 0
 
         self._model.to(self.device)
+        i = 0
         for data in self.public_train_dataloader:
-            idx = data[1]
             x = data[0].to(self.device)
-            y_consensus = self.current_consensus[idx, :].to(self.device)
+            y_consensus = self.current_consensus[i].to(self.device)
             self.consensus_optimizer.zero_grad()
             y_pred = self._model(x)
             loss = self.consensus_loss_func(y_pred, y_consensus)
@@ -81,6 +89,7 @@ class Client:
             self.consensus_optimizer.step()
             running_loss += loss.item()
 
+            i += 1
         return running_loss
 
     def validation_acc(self):

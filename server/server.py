@@ -1,9 +1,12 @@
 import os
 import csv
 import random
+import torch
+from torch.utils.data import Subset, DataLoader
 
 CLIENTS_PER_ROUND = 10
 TOT_NR_CLIENTS = 100
+SUBSET_BATCH_SIZE = 128
 
 def get_architecture_clients():
     #this function returns a dictionary:
@@ -26,17 +29,22 @@ def get_architecture_clients():
 
 
 class Server:
-    def __init__(self, clients, total_rounds, device):
+    def __init__(self, clients, total_rounds, public_train_dataloader, num_samples_per_round, device):
         self.clients = clients
         self.consensus = None
         self.total_rounds = total_rounds
         self.rounds_performed = 0
+        self.num_samples_per_round = num_samples_per_round
         self.device = device
         self.selected_clients = None
         self.clients_scores = None
 
+        self.public_train_dataloader = public_train_dataloader
+        self.public_subset_dataloader = None
+
         self.architecture_clients = get_architecture_clients()
         self.choose_clients()
+        self.choose_subset()
 
         if not os.path.isdir('logs'):   #directory for storing checkpoints when a client is revisiting its private dataset
             os.mkdir('logs')            #these logs will be deleted once the revisit is over
@@ -59,6 +67,7 @@ class Server:
     #        self.rounds_performed += 1
 
     def perform_round(self):
+
         print("Clients begin computing the scores\n")
         self.receive()
         print("Server computes consensus\n")
@@ -70,8 +79,9 @@ class Server:
         print("Perform validation on every client\n")
         val_res = self.clients_validation()
 
-        #select new clients for next round
-        selected_clients = self.choose_clients()
+        #select new clients and subset for next round
+        self.choose_clients()
+        self.choose_subset()
 
         return val_res
 
@@ -90,15 +100,40 @@ class Server:
         #self.selected_clients = selected_clients
         self.selected_clients = [c for c in self.clients if c.client_id in selected_clients]
         print(f"Selected clients: {selected_clients}\n")
-        return selected_clients
+
+    def choose_subset(self):
+        # Shuffle indexes
+        tr_data_len = len(self.public_train_dataloader.dataset)
+        shuffled_indexes = torch.randperm(tr_data_len)
+
+        # Partition indexes
+        train_indexes = shuffled_indexes[0: self.num_samples_per_round]
+
+        public_subset = Subset(self.public_train_dataloader.dataset, train_indexes)
+        public_subset_dataloader = DataLoader(public_subset, batch_size=SUBSET_BATCH_SIZE, num_workers=1, shuffle=False)
+                                        # shuffle=False should ensure that the order
+                                        # within the dataloader is consistent for
+                                        # all iterations (epochs)
+
+        self.public_subset_dataloader = public_subset_dataloader
+
+        for c in self.selected_clients.keys():
+            self.selected_clients[c].public_train_dataloader = public_subset_dataloader
 
     def receive(self):
         self.clients_scores = [client.upload() for client in self.selected_clients]
 
     def update(self):
         len_selected_clients = len(self.selected_clients)
-        self.consensus = self.clients_scores[0] / len_selected_clients
-        for scores in self.clients_scores[1:]:
+        #self.consensus = self.clients_scores[0] / len_selected_clients
+        
+        nr_batches = len(self.public_subset_dataloader)
+        size_batch = self.public_subset_dataloader.batch_size
+        nr_classes = 100
+        
+        self.consensus = torch.zeros((nr_batches, size_batch, nr_classes))
+
+        for scores in self.clients_scores:
             self.consensus += scores / len_selected_clients
 
     def distribute(self):
