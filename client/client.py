@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from fedmd.models_implementations.train_on_cifar import _training, _validation
+from fedmd.models_implementations.utils import load_model
 import os
 
 LOCAL_EPOCH = 20
@@ -71,6 +72,11 @@ class Client:
             self._model, self.private_train_dataloader, self.private_validation_dataloader, LOCAL_EPOCH , LR, MOMENTUM, WEIGHT_DECAY, FILE_PATH
         )
 
+        #load best model parameters obtained throughout the revisit phase
+        data = load_model(FILE_PATH + "/best_model.pth")
+        self._model.load_state_dict(data["weights"])
+
+        #remove logs from _train function
         os.remove(FILE_PATH + "/best_model.pth")
         os.remove(FILE_PATH + "/stats.csv")
 
