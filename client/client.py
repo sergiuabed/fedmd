@@ -32,7 +32,7 @@ class Client:
         self.current_consensus = current_consensus
 
         self.consensus_loss_func = nn.L1Loss()#nn.CrossEntropyLoss() 
-        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.1)#0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
 
         self.accuracies = []
         self.losses = []
@@ -76,6 +76,9 @@ class Client:
 
     def digest(self):   # i.e. approach consensus
         running_loss = 0
+
+        #POSSIBLE SOLUTIONS FOR VERY POOR RESULTS:- USE LOWER LEARNING RATE DURING REVISIT (OR HIGHER LEARNING RATE DURING DIGEST)
+                                                # - USE WEIGHTS TO PENALIZE THE SCORES FROM POORLY PERFORMING CLIENTS
 
         self._model.to(self.device)
         i = 0
