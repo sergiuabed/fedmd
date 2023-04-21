@@ -95,8 +95,9 @@ class Server:
                 highest_acc = 0
                 for line in csv.reader(data):
                     if line[0] != "epoch":
-                        if highest_acc < line[2]:
-                            highest_acc = line[2]
+                        acc = float(line[2])
+                        if highest_acc < acc:
+                            highest_acc = acc
                 
                 self.accuracies[c.client_id] = highest_acc
 
