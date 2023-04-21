@@ -90,7 +90,7 @@ class Server:
 
     def init_accuracy_dict(self):
         for c in self.clients:
-            filename = os.getcwd() + f"/independent_train/client{c.client_id}/stats_{self.alpha}.csv"
+            filename = os.getcwd() + f"/fedmd/independent_train/client{c.client_id}/stats_{self.alpha}.csv"
             with open(filename, 'r') as data:
                 highest_acc = 0
                 for line in csv.reader(data):
