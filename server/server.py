@@ -29,12 +29,13 @@ def get_architecture_clients():
 
 
 class Server:
-    def __init__(self, clients, total_rounds, public_train_dataloader, num_samples_per_round, device):
+    def __init__(self, clients, total_rounds, public_train_dataloader, num_samples_per_round, alpha, device):
         self.clients = clients
         self.consensus = None
         self.total_rounds = total_rounds
         self.rounds_performed = 0
         self.num_samples_per_round = num_samples_per_round
+        self.alpha = alpha
         self.device = device
         self.selected_clients = None
         self.clients_scores = None
@@ -42,7 +43,9 @@ class Server:
         self.public_train_dataloader = public_train_dataloader
         self.public_subset_dataloader = None
 
+        self.accuracies = None  #stores dictionary of accuracies for each client
         self.architecture_clients = get_architecture_clients()
+        self.init_accuracy_dict()
         self.choose_clients()
         self.choose_subset()
 
@@ -85,6 +88,18 @@ class Server:
 
         return val_res
 
+    def init_accuracy_dict(self):
+        for c in self.clients:
+            filename = os.getcwd() + f"/independent_train/client{c.client_id}/stats_{self.alpha}.csv"
+            with open(filename, 'r') as data:
+                highest_acc = 0
+                for line in csv.reader(data):
+                    if line[0] != "epoch":
+                        if highest_acc < line[2]:
+                            highest_acc = line[2]
+                
+                self.accuracies[c.client_id] = highest_acc
+
     def choose_clients(self):
         # makes sure every architecture type occurs in a round at least once 
         selected_clients = []
@@ -121,10 +136,10 @@ class Server:
             c.public_train_dataloader = public_subset_dataloader
 
     def receive(self):
-        self.clients_scores = [client.upload() for client in self.selected_clients]
+        self.clients_scores = {client.client_id: client.upload() for client in self.selected_clients}
 
     def update(self):
-        len_selected_clients = len(self.selected_clients)
+        #len_selected_clients = len(self.selected_clients)
         #self.consensus = self.clients_scores[0] / len_selected_clients
         
         nr_batches = len(self.public_subset_dataloader)
@@ -133,8 +148,15 @@ class Server:
         
         self.consensus = torch.zeros((nr_batches, size_batch, nr_classes))
 
-        for scores in self.clients_scores:
-            self.consensus += scores / len_selected_clients
+        #for scores in self.clients_scores:
+        #    self.consensus += scores / len_selected_clients
+
+        selected_clients_acc = [self.accuracies[c.client_id] for c in self.selected_clients]
+        sum_accs = sum(selected_clients_acc)
+
+        for client in self.selected_clients:
+            weight = self.accuracies[client.client_id] / sum_accs #this way the scores from the clients with better accuracy have more impact in the consensus
+            self.consensus += self.clients_scores[client.client_id]*weight
 
     def distribute(self):
         for client in self.selected_clients:
@@ -144,8 +166,9 @@ class Server:
         val_res = {}
         for c in self.selected_clients:
             val_res[c.client_id] = c.validation_acc()
+            self.accuracies[c.client_id] = val_res[c.client_id] #update with new accuracies after the end of the round
             print(f"Client {c.client_id} accuracy: {val_res[c.client_id]}\n")
-        
+
         return val_res
 
         
