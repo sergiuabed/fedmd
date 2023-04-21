@@ -43,7 +43,7 @@ class Server:
         self.public_train_dataloader = public_train_dataloader
         self.public_subset_dataloader = None
 
-        self.accuracies = None  #stores dictionary of accuracies for each client
+        self.accuracies = {}  #stores dictionary of accuracies for each client
         self.architecture_clients = get_architecture_clients()
         self.init_accuracy_dict()
         self.choose_clients()
