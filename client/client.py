@@ -33,7 +33,7 @@ class Client:
         self.current_consensus = current_consensus
 
         self.consensus_loss_func = nn.L1Loss() #nn.CrossEntropyLoss() 
-        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.01)#0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
 
         self.accuracies = []
         self.losses = []
