@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from fedmd.models_implementations.train_on_cifar import _training, _validation
-from fedmd.models_implementations.utils import load_model
+from fedmd.models_implementations.utils import load_model, save_model
 import os
 
 LOCAL_EPOCH = 20
@@ -33,7 +33,7 @@ class Client:
         self.current_consensus = current_consensus
 
         self.consensus_loss_func = nn.L1Loss() #nn.CrossEntropyLoss() 
-        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.01)#0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
 
         self.accuracies = []
         self.losses = []
@@ -68,9 +68,67 @@ class Client:
         self.private_train()
 
     def private_train(self):
-        _training(
-            self._model, self.private_train_dataloader, self.private_validation_dataloader, LOCAL_EPOCH , LR, MOMENTUM, WEIGHT_DECAY, FILE_PATH
-        )
+        #_training(
+        #    self._model, self.private_train_dataloader, self.private_validation_dataloader, LOCAL_EPOCH , LR, MOMENTUM, WEIGHT_DECAY, FILE_PATH
+        #)
+
+
+        # Define loss function
+        criterion = nn.CrossEntropyLoss()
+
+        # Define optimizer
+        optimizer = self.consensus_optimizer #parameters to optimize already passed during the init of the client
+
+        # Send to device
+        net = self._model
+        net = net.to(self.device)
+        # Optimize
+
+        # Train
+        max_accuracy = 0
+        for epoch in range(LOCAL_EPOCH):
+            print(
+                "Starting epoch {}/{}, LR = {}".format(
+                    epoch + 1, LOCAL_EPOCH, LR
+                )
+            )
+            sum_losses = torch.zeros(1).to(self.device)
+
+            # Iterate over the training dataset in batches
+            for images, labels in self.private_train_dataloader:
+                # Bring data over the device of choice
+                images = images.to(self.device)
+                labels = labels.to(self.device)
+
+                net.train()  # Sets module in training mode
+
+                optimizer.zero_grad()  # Zero-ing the gradients
+
+                # Forward pass to the network
+                outputs = net(images)
+
+                # Compute loss based on output and ground truth
+                loss = criterion(outputs, labels)
+                sum_losses += loss
+
+                # Compute gradients for each layer and update weights
+                loss.backward()  # backward pass: computes gradients
+                optimizer.step()  # update weights based on accumulated gradients
+
+            # Compute and log the average loss over all batches
+            avg_loss = sum_losses.item() / len(self.public_train_dataloader)
+            print(f"Current Avg Loss = {avg_loss}")
+
+            # Compute validation accuracy
+            acc = _validation(net, self.private_validation_dataloader)
+            print(f"Current Val Accuracy = {acc}")
+
+            # Save the best model
+            if acc > max_accuracy:
+                save_model(net, FILE_PATH + "/best_model.pth", epoch, acc, LR)
+                max_accuracy = acc
+
+        print("Max Validation Accuracy: {}".format(max_accuracy))
 
         #load best model parameters obtained throughout the revisit phase
         data = load_model(FILE_PATH + "/best_model.pth")
@@ -78,7 +136,6 @@ class Client:
 
         #remove logs from _train function
         os.remove(FILE_PATH + "/best_model.pth")
-        os.remove(FILE_PATH + "/stats.csv")
 
     def digest(self):   # i.e. approach consensus
         running_loss = 0
