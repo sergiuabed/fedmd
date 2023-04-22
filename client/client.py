@@ -9,7 +9,7 @@ from fedmd.models_implementations.utils import load_model
 import os
 
 LOCAL_EPOCH = 20
-LR = 0.001
+LR = 0.1#0.001
 WEIGHT_DECAY = 0.0001
 MOMENTUM = 0.9
 
