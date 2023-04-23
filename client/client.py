@@ -9,7 +9,7 @@ from fedmd.models_implementations.utils import load_model, save_model
 import os
 
 LOCAL_EPOCH = 20
-LR = 0.01#0.001
+LR = 0.001#0.01
 WEIGHT_DECAY = 0.0001
 MOMENTUM = 0.9
 
@@ -33,7 +33,7 @@ class Client:
         self.current_consensus = current_consensus
 
         self.consensus_loss_func = nn.L1Loss() #nn.CrossEntropyLoss() 
-        self.consensus_optimizer = optim.Adam(self._model.parameters(), 0.001)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_optimizer = optim.Adam(self._model.parameters(), LR)  # optimizer suggested in FedMD paper with starting lr=0.001
 
         self.accuracies = []
         self.losses = []

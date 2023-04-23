@@ -187,6 +187,113 @@ def _training(
     # Delete checkpoint
     os.remove(file_path + "/checkpoint.pth")
 
+
+
+
+def _training_adam(
+    net: torch.nn.Module,
+    tr_set: DataLoader,
+    val_set: DataLoader,
+    num_epochs: int,
+    lr: float,
+    momentum: float,
+    weight_decay: float,
+    file_path:str,
+) -> None:
+        
+    # Load checkpoint if present
+    if os.path.isfile(file_path + "/checkpoint.pth"):
+        data = load_model(file_path + "/checkpoint.pth")
+        epoch = data["epoch"]
+        lr = data["lr"]
+        weights = data["weights"]
+        net.load_state_dict(weights)
+        cur_epoch = epoch
+    else:
+        cur_epoch = 0
+        # Delete previous stats file
+        if os.path.isfile(file_path + "/stats.csv"):
+            os.remove(file_path + "/stats.csv")
+
+    # Define loss function
+    criterion = nn.CrossEntropyLoss()
+
+    # Choose parameters to optimize
+    parameters_to_optimize = [p for p in net.parameters() if p.requires_grad]
+
+    # Define optimizer
+    optimizer = optim.Adam(parameters_to_optimize, lr)
+    
+    # Send to device
+    net = net.to(DEVICE)
+    # Optimize
+    cudnn.benchmark 
+
+    # Train
+    current_step = 0
+    max_accuracy = 0
+    for epoch in range(cur_epoch, num_epochs):
+        print(
+            "Starting epoch {}/{}, LR = {}".format(
+                epoch + 1, num_epochs, lr
+            )
+        )
+        sum_losses = torch.zeros(1).to(DEVICE)
+
+        # Iterate over the training dataset in batches
+        for images, labels in tr_set:
+            # Bring data over the device of choice
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
+
+            net.train()  # Sets module in training mode
+
+            optimizer.zero_grad()  # Zero-ing the gradients
+
+            # Forward pass to the network
+            outputs = net(images)
+
+            # Compute loss based on output and ground truth
+            loss = criterion(outputs, labels)
+            sum_losses += loss
+
+            # Compute gradients for each layer and update weights
+            loss.backward()  # backward pass: computes gradients
+            optimizer.step()  # update weights based on accumulated gradients
+
+            current_step += 1
+
+        # Compute and log the average loss over all batches
+        avg_loss = sum_losses.item() / len(tr_set)
+        print(f"Current Avg Loss = {avg_loss}")
+
+        # Compute validation accuracy
+        acc = _validation(net, val_set)
+        print(f"Current Val Accuracy = {acc}")
+        
+        # Save the best model
+        if acc > max_accuracy:
+            save_model(net, file_path + "/best_model.pth", epoch, acc, lr)
+            max_accuracy = acc
+        # Checkpoint
+        save_model(net, file_path + "/checkpoint.pth", epoch, acc, lr)
+
+        # Record stats
+        with open(file_path + "/stats.csv", "a") as f:
+            if epoch == 0:
+                f.write("epoch,avg_loss,accuracy\n")
+            f.write(f"{epoch},{avg_loss},{acc}\n")
+
+    print("Max Validation Accuracy: {}".format(max_accuracy))
+
+    # Delete checkpoint
+    os.remove(file_path + "/checkpoint.pth")
+
+
+
+
+
+
 def _validation(net: torch.nn.Module, val_set: DataLoader):
     # This will bring the network to GPU if DEVICE is cuda
     net = net.to(DEVICE)
@@ -262,8 +369,8 @@ def train_on_cifar(
         dataset = CIFAR10
 
     training_set, validation_set, test_set = _data_processing(dataset)
-
-    _training(
+        #REMEMBER TO CHANGE BACK TO _training()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    _training_adam(
         net,
         training_set,
         validation_set,
