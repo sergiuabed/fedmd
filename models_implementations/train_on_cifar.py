@@ -369,8 +369,8 @@ def train_on_cifar(
         dataset = CIFAR10
 
     training_set, validation_set, test_set = _data_processing(dataset)
-        #REMEMBER TO CHANGE BACK TO _training()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    _training_adam(
+    
+    _training(
         net,
         training_set,
         validation_set,
