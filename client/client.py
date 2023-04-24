@@ -77,9 +77,10 @@ class Client:
         criterion = nn.CrossEntropyLoss()
 
         # Define optimizer
-        optimizer = optim.SGD(  #self.consensus_optimizer #parameters to optimize already passed during the init of the client
-            self._model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
-        )
+        #optimizer = optim.SGD(  #self.consensus_optimizer #parameters to optimize already passed during the init of the client
+        #    self._model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
+        #)
+        optimizer = self.consensus_optimizer
 
         # Send to device
         net = self._model
