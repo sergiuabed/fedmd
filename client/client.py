@@ -9,7 +9,8 @@ from fedmd.models_implementations.utils import load_model, save_model
 import os
 
 LOCAL_EPOCH = 20
-LR = 0.001#0.001
+LR_ADAM = 0.001#0.001
+LR_SGD = 0.1
 WEIGHT_DECAY = 0.0001
 MOMENTUM = 0.9
 
@@ -33,7 +34,7 @@ class Client:
         self.current_consensus = current_consensus
 
         self.consensus_loss_func = nn.L1Loss() #nn.CrossEntropyLoss() 
-        self.consensus_optimizer = optim.Adam(self._model.parameters(), LR)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_optimizer = optim.Adam(self._model.parameters(), LR_ADAM)  # optimizer suggested in FedMD paper with starting lr=0.001
 
         self.accuracies = []
         self.losses = []
@@ -77,10 +78,11 @@ class Client:
         criterion = nn.CrossEntropyLoss()
 
         # Define optimizer
-        #optimizer = optim.SGD(  #self.consensus_optimizer #parameters to optimize already passed during the init of the client
-        #    self._model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
-        #)
-        optimizer = self.consensus_optimizer
+        optimizer = optim.SGD(  #self.consensus_optimizer #parameters to optimize already passed during the init of the client
+            self._model.parameters(), lr=LR_SGD, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
+        )
+        LR = LR_SGD
+        #optimizer = self.consensus_optimizer
 
         # Send to device
         net = self._model
