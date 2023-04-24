@@ -33,8 +33,11 @@ class Client:
         self.current_local_scores = None
         self.current_consensus = current_consensus
 
-        self.consensus_loss_func = nn.CrossEntropyLoss() #nn.L1Loss()
-        self.consensus_optimizer = optim.Adam(self._model.parameters(), LR_ADAM)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_loss_func = nn.L1Loss() #nn.CrossEntropyLoss()
+        #self.consensus_optimizer = optim.Adam(self._model.parameters(), LR_ADAM)  # optimizer suggested in FedMD paper with starting lr=0.001
+        self.consensus_optimizer = optim.SGD(  
+            self._model.parameters(), lr=LR_ADAM, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
+        )
 
         self.accuracies = []
         self.losses = []
@@ -78,11 +81,11 @@ class Client:
         criterion = nn.CrossEntropyLoss()
 
         # Define optimizer
-        optimizer = optim.SGD(  #self.consensus_optimizer #parameters to optimize already passed during the init of the client
+        optimizer = optim.SGD(  
             self._model.parameters(), lr=LR_SGD, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
         )
         LR = LR_SGD
-        #optimizer = self.consensus_optimizer
+        #optimizer = self.consensus_optimizer #parameters to optimize already passed during the init of the client
 
         # Send to device
         net = self._model
