@@ -33,7 +33,7 @@ class Client:
         self.current_local_scores = None
         self.current_consensus = current_consensus
 
-        self.consensus_loss_func = nn.NLLLoss() #nn.CrossEntropyLoss() #nn.L1Loss()
+        self.consensus_loss_func = nn.CrossEntropyLoss() #nn.NLLLoss() #nn.L1Loss()
         self.consensus_optimizer = optim.Adam(self._model.parameters(), LR_ADAM)  # optimizer suggested in FedMD paper with starting lr=0.001
         #self.consensus_optimizer = optim.SGD(  
         #    self._model.parameters(), lr=LR_ADAM, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
@@ -59,7 +59,7 @@ class Client:
 
             #self.current_local_scores.append(self._model(x))
             
-            self.current_local_scores[i] = self._model(x).detach()
+            self.current_local_scores[i] = self._model(x).softmax(dim=1, dtype=float).detach()
             i += 1
 
         return self.current_local_scores
