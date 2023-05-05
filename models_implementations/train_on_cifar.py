@@ -78,7 +78,7 @@ def _data_processing(dataset: CIFAR10) -> Tuple[DataLoader, DataLoader, DataLoad
     return train_dataloader, val_dataloader, test_dataloader
 
 
-def _training(
+def _training_old(
     net: torch.nn.Module,
     tr_set: DataLoader,
     val_set: DataLoader,
@@ -190,7 +190,7 @@ def _training(
 
 
 
-def _training_adam(
+def _training(
     net: torch.nn.Module,
     tr_set: DataLoader,
     val_set: DataLoader,
@@ -222,7 +222,9 @@ def _training_adam(
     parameters_to_optimize = [p for p in net.parameters() if p.requires_grad]
 
     # Define optimizer
-    optimizer = optim.Adam(parameters_to_optimize, lr)
+    optimizer = optim.SGD(
+        parameters_to_optimize, lr=lr, momentum=momentum, weight_decay=weight_decay
+    )
     
     # Send to device
     net = net.to(DEVICE)

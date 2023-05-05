@@ -45,7 +45,7 @@ class Client:
     def upload(self):
         print(f"Client {self.client_id} starts computing scores.\n")
         self._model.to(self.device)
-
+        #set model.eval()
         nr_batches = len(self.public_train_dataloader)
         size_batch = self.public_train_dataloader.batch_size
         nr_classes = 100
