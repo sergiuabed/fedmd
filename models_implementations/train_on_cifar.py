@@ -16,7 +16,7 @@ DATA_PATH = os.getcwd()
 
 BATCH_SIZE = 128
 VAL_RATIO = 0.2  # Fraction of the training set used for validation
-NUM_WORKERS = 4
+NUM_WORKERS = 1 #4
 
 
 def _data_processing(dataset: CIFAR10) -> Tuple[DataLoader, DataLoader, DataLoader]:
@@ -32,12 +32,24 @@ def _data_processing(dataset: CIFAR10) -> Tuple[DataLoader, DataLoader, DataLoad
         ]
     )
     # Define transforms for the evaluation phase
-    eval_transform = train_transform
+    eval_transform = transforms.Compose(
+        [
+            transforms.ToTensor(),  # Turn PIL Image to torch.Tensor
+            transforms.Normalize(
+                (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
+            ),  # Normalizes tensor with mean and standard deviation
+        ]
+    )
 
     # Prepare Pytorch train/test Datasets
     train_dataset = dataset(
         root=DATA_PATH, train=True, transform=train_transform, download=True
     )
+
+    val_dataset = dataset(
+        root=DATA_PATH, train=True, transform=eval_transform, download=True
+    )
+
     test_dataset = dataset(root=DATA_PATH, train=False,
                            transform=eval_transform)
 
@@ -52,7 +64,7 @@ def _data_processing(dataset: CIFAR10) -> Tuple[DataLoader, DataLoader, DataLoad
     val_indexes = shuffled_indexes[int(tr_data_len * (1 - VAL_RATIO)): tr_data_len]
 
     tr_dataset = Subset(train_dataset, train_indexes)
-    val_dataset = Subset(train_dataset, val_indexes)
+    val_dataset = Subset(val_dataset, val_indexes)
 
     # Check dataset sizes
     print('Train Dataset: {}'.format(len(tr_dataset)))

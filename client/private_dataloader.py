@@ -40,25 +40,31 @@ class ClientPrivateDataset(Dataset):
                 self.imgs.append(image)
             self.labels.append(label)
 
-        transf = transforms.Compose(
-            [
-                transforms.RandomResizedCrop(size=32),
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.ToTensor(),  # Turn PIL Image to torch.Tensor
-                transforms.Normalize(
-                    (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
-                ),  # Normalizes tensor with mean and standard deviation
-            ]
-        )
-
         if train:
-            self.train_transform = transf
+            self.train_transform = transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=32), #no need for padding. This transform makes crops of random area and then resizes to given "size"
+                    transforms.RandomHorizontalFlip(p=0.5),
+                    transforms.ToTensor(),  # Turn PIL Image to torch.Tensor
+                    transforms.Normalize(
+                        (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
+                    ),  # Normalizes tensor with mean and standard deviation
+                ]
+            )
+
             self.test_transform = None
             if cutout is not None:
                 self.train_transform.transforms.append(cutout(n_holes=1, length=16))
         else:
             self.train_transform = None
-            self.test_transform = transf
+            self.test_transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),  # Turn PIL Image to torch.Tensor
+                    transforms.Normalize(
+                        (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
+                    ),  # Normalizes tensor with mean and standard deviation
+                ]
+            )
 
     def __len__(self):
         return len(self.labels)
