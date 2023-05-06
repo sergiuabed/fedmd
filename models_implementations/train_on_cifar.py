@@ -14,7 +14,7 @@ from fedmd.models_implementations.utils import save_model, load_model
 DEVICE = "cuda"
 DATA_PATH = os.getcwd()
 
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 VAL_RATIO = 0.2  # Fraction of the training set used for validation
 NUM_WORKERS = 1 #4
 
