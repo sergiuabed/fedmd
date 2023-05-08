@@ -82,7 +82,7 @@ class Client:
 
         # Define optimizer
         optimizer = optim.SGD(  
-            self._model.parameters(), lr=LR_SGD, momentum=None, weight_decay=WEIGHT_DECAY
+            self._model.parameters(), lr=LR_SGD, weight_decay=WEIGHT_DECAY
         )
         LR = LR_SGD
         #optimizer = self.consensus_optimizer #parameters to optimize already passed during the init of the client
