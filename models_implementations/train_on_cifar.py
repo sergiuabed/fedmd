@@ -301,7 +301,7 @@ def _training(
     print("Max Validation Accuracy: {}".format(max_accuracy))
 
     # Delete checkpoint
-    os.remove(file_path + "/checkpoint.pth")
+    #os.remove(file_path + "/checkpoint.pth")
 
 
 
