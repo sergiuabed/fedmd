@@ -158,6 +158,9 @@ class Server:
         for client in self.selected_clients:
             weight = self.accuracies[client.client_id] / sum_accs #this way the scores from the clients with better accuracy have more impact in the consensus
             self.consensus += self.clients_scores[client.client_id]*weight
+        
+        self.consensus = self.consensus.softmax(dim=1, dtype=float) #applying softmax because CrossEntropyLoss (used for consensus digest by the clients)
+                                                                    #needs probabilities when the target input is not just a scalar
 
     def distribute(self):
         for client in self.selected_clients:

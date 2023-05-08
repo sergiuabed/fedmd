@@ -45,7 +45,7 @@ class Client:
     def upload(self):
         print(f"Client {self.client_id} starts computing scores.\n")
         self._model.to(self.device)
-        #set model.eval()
+        self._model.eval()
         nr_batches = len(self.public_train_dataloader)
         size_batch = self.public_train_dataloader.batch_size
         nr_classes = 100
@@ -59,7 +59,7 @@ class Client:
 
             #self.current_local_scores.append(self._model(x))
             
-            self.current_local_scores[i] = self._model(x).softmax(dim=1, dtype=float).detach()
+            self.current_local_scores[i] = self._model(x).detach() #softmax applied on server side when computing consensus .softmax(dim=1, dtype=float).detach()
             i += 1
 
         return self.current_local_scores
@@ -82,7 +82,7 @@ class Client:
 
         # Define optimizer
         optimizer = optim.SGD(  
-            self._model.parameters(), lr=LR_SGD, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY
+            self._model.parameters(), lr=LR_SGD, momentum=None, weight_decay=WEIGHT_DECAY
         )
         LR = LR_SGD
         #optimizer = self.consensus_optimizer #parameters to optimize already passed during the init of the client
