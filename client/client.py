@@ -8,7 +8,7 @@ from fedmd.models_implementations.train_on_cifar import _training, _validation
 from fedmd.models_implementations.utils import load_model, save_model
 import os
 
-LOCAL_EPOCH = 5
+LOCAL_EPOCH = 3
 LR_ADAM = 0.001#0.001
 LR_SGD = 0.001
 WEIGHT_DECAY = 0.0001
@@ -132,18 +132,18 @@ class Client:
             print(f"Current Val Accuracy = {acc}")
 
             # Save the best model
-            if acc > max_accuracy:
-                save_model(net, FILE_PATH + "/best_model.pth", epoch, acc, LR)
-                max_accuracy = acc
+            #if acc > max_accuracy:
+            #    save_model(net, FILE_PATH + "/best_model.pth", epoch, acc, LR)
+            #    max_accuracy = acc
 
         print("Max Validation Accuracy: {}".format(max_accuracy))
 
         #load best model parameters obtained throughout the revisit phase
-        data = load_model(FILE_PATH + "/best_model.pth")
-        self._model.load_state_dict(data["weights"])
+        #data = load_model(FILE_PATH + "/best_model.pth")
+        #self._model.load_state_dict(data["weights"])
 
         #remove logs from _train function
-        os.remove(FILE_PATH + "/best_model.pth")
+        #os.remove(FILE_PATH + "/best_model.pth")
 
     def digest(self):   # i.e. approach consensus
         running_loss = 0
