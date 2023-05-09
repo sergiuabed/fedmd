@@ -92,6 +92,11 @@ class Client:
         net = net.to(self.device)
         # Optimize
 
+
+        acc = _validation(net, self.private_validation_dataloader)
+        print(f"Current Val Accuracy right after digest and before revisit = {acc}")
+        print()
+
         # Train
         max_accuracy = 0
         for epoch in range(LOCAL_EPOCH):
