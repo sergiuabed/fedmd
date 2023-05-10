@@ -14,7 +14,7 @@ from fedmd.models_implementations.utils import save_model, load_model
 DEVICE = "cuda"
 DATA_PATH = os.getcwd()
 
-BATCH_SIZE = 1024 #128
+BATCH_SIZE = 128
 VAL_RATIO = 0.2  # Fraction of the training set used for validation
 NUM_WORKERS = 1 #4
 
@@ -328,7 +328,7 @@ def _validation(net: torch.nn.Module, val_set: DataLoader):
         running_corrects += torch.sum(preds == labels.data).data.item()
 
     # Calculate Accuracy
-    accuracy = running_corrects / (len(val_set)*BATCH_SIZE)
+    accuracy = running_corrects / (len(val_set)*val_set.batch_size)
 
     net.train(True)  # Set network to training mode
 
