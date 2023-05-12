@@ -163,7 +163,7 @@ class Client:
             y_consensus = self.current_consensus[i].to(self.device)
             self._model.train()
             self.consensus_optimizer.zero_grad()
-            y_pred = self._model(x).softmax(dim=1, dtype=float)
+            y_pred = self._model(x)#.softmax(dim=1, dtype=float)
             loss = self.consensus_loss_func(y_pred, y_consensus)
             loss.backward()
             self.consensus_optimizer.step()
