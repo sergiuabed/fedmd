@@ -6,7 +6,7 @@ from torch.utils.data import Subset, DataLoader
 
 CLIENTS_PER_ROUND = 10
 TOT_NR_CLIENTS = 100
-SUBSET_BATCH_SIZE = 256#128
+SUBSET_BATCH_SIZE = 128#256#128
 
 def get_architecture_clients():
     #this function returns a dictionary:
