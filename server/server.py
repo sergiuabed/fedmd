@@ -6,7 +6,7 @@ from torch.utils.data import Subset, DataLoader
 
 CLIENTS_PER_ROUND = 10
 TOT_NR_CLIENTS = 100
-SUBSET_BATCH_SIZE = 128#256#128
+#SUBSET_BATCH_SIZE = 128#256#128
 
 def get_architecture_clients():
     #this function returns a dictionary:
@@ -29,12 +29,13 @@ def get_architecture_clients():
 
 
 class Server:
-    def __init__(self, clients, total_rounds, public_train_dataloader, num_samples_per_round, alpha, device):
+    def __init__(self, clients, total_rounds, public_train_dataloader, num_samples_per_round, subset_batch_size, alpha, device):
         self.clients = clients
         self.consensus = None
         self.total_rounds = total_rounds
         self.rounds_performed = 0
         self.num_samples_per_round = num_samples_per_round
+        self.subset_batch_size = subset_batch_size
         self.alpha = alpha
         self.device = device
         self.selected_clients = None
@@ -126,7 +127,7 @@ class Server:
         train_indexes = shuffled_indexes[0: self.num_samples_per_round]
 
         public_subset = Subset(self.public_train_dataloader.dataset, train_indexes)
-        public_subset_dataloader = DataLoader(public_subset, batch_size=SUBSET_BATCH_SIZE, num_workers=1, shuffle=False)
+        public_subset_dataloader = DataLoader(public_subset, batch_size=self.subset_batch_size, num_workers=1, shuffle=False)
                                         # shuffle=False should ensure that the order
                                         # within the dataloader is consistent for
                                         # all iterations (epochs)
