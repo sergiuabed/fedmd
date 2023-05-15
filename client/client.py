@@ -156,6 +156,8 @@ class Client:
         #POSSIBLE SOLUTIONS FOR VERY POOR RESULTS:- USE LOWER LEARNING RATE DURING REVISIT (OR HIGHER LEARNING RATE DURING DIGEST)
                                                 # - USE WEIGHTS TO PENALIZE THE SCORES FROM POORLY PERFORMING CLIENTS
 
+        print(f"Validation accuracy before digest: {_validation(self._model, self.private_validation_dataloader)}")
+
         self._model.to(self.device)
         i = 0
         for data in self.public_train_dataloader:
