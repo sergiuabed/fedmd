@@ -129,7 +129,7 @@ class Client:
                 optimizer.step()  # update weights based on accumulated gradients
 
             # Compute and log the average loss over all batches
-            avg_loss = sum_losses.item() / len(self.public_train_dataloader)
+            avg_loss = sum_losses.item() / len(self.private_train_dataloader)
             print(f"Current Avg Loss = {avg_loss}")
 
             # Compute validation accuracy
