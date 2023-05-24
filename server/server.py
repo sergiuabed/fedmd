@@ -53,23 +53,6 @@ class Server:
         if not os.path.isdir('logs'):   #directory for storing checkpoints when a client is revisiting its private dataset
             os.mkdir('logs')            #these logs will be deleted once the revisit is over
 
-    #def perform_round(self):
-    #    self.get_scores()
-
-
-#rounds = 16
-
-##Make sure in each round all architectures are present
-##
-##When drawing test_accuracy vs rounds graphs, when an architecture is used more than once during the same round, take the average of the accuracy.
-##Another test_accuracy vs rounds graph idea is to plot the best performing model of each architecture and the worst performing one, according to the maximum accuracy achieved by each model of that architecture
-
-
-    #def start_fedmd(self):
-    #    for _ in range(self.total_rounds):
-    #        self.perform_round()
-    #        self.rounds_performed += 1
-
     def perform_round(self):
 
         print("Clients begin computing the scores\n")

@@ -143,20 +143,8 @@ class Client:
 
         print("Max Validation Accuracy: {}".format(max_accuracy))
 
-        #load best model parameters obtained throughout the revisit phase
-        #data = load_model(FILE_PATH + "/best_model.pth")
-        #self._model.load_state_dict(data["weights"])
-
-        #remove logs from _train function
-        #os.remove(FILE_PATH + "/best_model.pth")
-
     def digest(self):   # i.e. approach consensus
         running_loss = 0
-
-        #POSSIBLE SOLUTIONS FOR VERY POOR RESULTS:- USE LOWER LEARNING RATE DURING REVISIT (OR HIGHER LEARNING RATE DURING DIGEST)
-                                                # - USE WEIGHTS TO PENALIZE THE SCORES FROM POORLY PERFORMING CLIENTS
-
-        #print(f"Validation accuracy before digest: {_validation(self._model, self.private_validation_dataloader)}")
 
         self._model.to(self.device)
         i = 0

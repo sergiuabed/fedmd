@@ -89,8 +89,6 @@ A round consists of the following phases:
 
 ![iid averaged result with upperbound](/plots/iid_averaged_results_with_upperbound.png "iid best result")*Figure 1.4*
 
-These plots were obtained by selecting for each architecture the client model with the highest gain in accuracy, i.e. the highest increase from independent training (i.e., before any collaboration) to the peak of the graph.
-
 ### 4.2 Non-i.i.d. results
 
 ![non-iid best result](/plots/non_iid_best_results.png "non-iid best result")*Figure 2.1*
@@ -100,6 +98,10 @@ These plots were obtained by selecting for each architecture the client model wi
 ![non-iid averaged result](/plots/non_iid_averaged_results.png "non-iid best result")*Figure 2.3*
 
 ![non-iid averaged result with upperbound](/plots/non_iid_averaged_results_with_upperbound.png "non-iid best result")*Figure 2.4*
+
+The "best results" plots were obtained by selecting for each architecture the client model with the highest gain in accuracy, i.e. the highest increase from independent training (i.e., before any collaboration) to the peak of the graph.
+
+The "averaged results" plots were obtained by averaging the results of all clients using the same architecture.
 
 The x-axis corresponds to the number of rounds performed. At x=0 we have the accuracy of a model before participating in the collaborative learning, i.e right after transfer learning on the public dataset and training on the private dataset (we call this independent training).
 
