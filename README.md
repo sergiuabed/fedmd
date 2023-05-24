@@ -49,7 +49,9 @@ A round consists of the following phases:
 
 - revisit: each client trains again on its own private dataset for few epochs
 
-For optimzation, we used Adam for the digest phase (as suggested by the authors of paper [2]) and SGD for the revisit phase.
+ During the execution of our implementation of FedMD, we assumed that all clients are available for collaboration. Also, during the selection of the clients for participation in a round, we made sure that each type of architecture is selected at least once, so that we can see better the effects of FedMD.
+
+ When computing the consensus, we used a weighted sum approach. The scores computed by models with higher accuracy have higher weights.
 
 ## 4. Experiment
 
@@ -58,7 +60,8 @@ For optimzation, we used Adam for the digest phase (as suggested by the authors 
 - number of clients: 100
 - number of clients participating in a round: 10
 - public dataset: CIFAR10
-- private dataset: CIFAR100 split in 100 subsets splits using Dirichlet's distribution to obtain i.i.d. or non-i.i.d. case. We used the splits provided by our teaching assistant
+- private dataset: CIFAR100 split in 100 subsets using Dirichlet's distribution to obtain i.i.d. or non-i.i.d. case. We used the splits provided by our teaching assistant
+- test dataset: CIFAR100 on its entirety
 - network architectures:
   - ResNet20-BN (batch normalization)
   - ResNet20-GN (group normalization)
@@ -68,7 +71,92 @@ For optimzation, we used Adam for the digest phase (as suggested by the authors 
   - ShuffleNetSmall
 - digest phase optimizer: Adam with LR (learing rate) set to 0.001
 - revisit phase optimizer: SGD with LR=0.001 for i.i.d. case and LR=0.0001 for non-i.i.d.
+- revisit epochs: 5 for i.i.d, 1 for non-i.i.d.
+- rounds performed:
+  - non-i.i.d.: 77
+  - i.i.d.: 62
+- platform: Google Colab
 
- The task of a client is to classify each image as one of the possible 100 subclasses in both i.i.d. and non-i.i.d conditions.
+ In both i.i.d. and non-i.i.d conditions, the task of a client is to classify each image as one of the possible 100 subclasses. The client models were trained on their private dataset until convergence.
 
-### 4.1 Non-i.i.d. results
+### 4.1 I.i.d. results
+
+![iid best result](/plots/iid_best_results.png "iid best result")*Figure 1.1*
+
+![iid best result with upperbound](/plots/iid_best_results_with_upperbound.png "iid best result")*Figure 1.2*
+
+![iid averaged result](/plots/iid_averaged_results.png "iid best result")*Figure 1.3*
+
+![iid averaged result with upperbound](/plots/iid_averaged_results_with_upperbound.png "iid best result")*Figure 1.4*
+
+These plots were obtained by selecting for each architecture the client model with the highest gain in accuracy, i.e. the highest increase from independent training (i.e., before any collaboration) to the peak of the graph.
+
+### 4.2 Non-i.i.d. results
+
+![non-iid best result](/plots/non_iid_best_results.png "non-iid best result")*Figure 2.1*
+
+![non-iid best result with upperbound](/plots/non_iid_best_results_with_upperbound.png "non-iid best result")*Figure 2.2*
+
+![non-iid averaged result](/plots/non_iid_averaged_results.png "non-iid best result")*Figure 2.3*
+
+![non-iid averaged result with upperbound](/plots/non_iid_averaged_results_with_upperbound.png "non-iid best result")*Figure 2.4*
+
+The x-axis corresponds to the number of rounds performed. At x=0 we have the accuracy of a model before participating in the collaborative learning, i.e right after transfer learning on the public dataset and training on the private dataset (we call this independent training).
+
+The constant dashed functions on the left depict the accuracies of the models after independent training. The constant dash-dotted lines on the right correspond to the accuracies of the models if the private datasets were collected, put together and made available to all clients to be used for training their models.
+
+As it can be seen, FedMD helps in boosting test accuracy for all model architectures. However, there is still a quite high gap between the accuracy obtained after collaborative learning and the upper bound, especially in the non-i.i.d. case. We suspect this is caused by the very small private training dataset that each client has at its disposal, since CIFAR100 was split in 100 subsets.
+
+## 5. Conclusion
+
+FedMD is a technique for performing collaborative learning among clients having models of different architectures. Unlike the initial federated learning techniques, which build a global model by averaging local models from all clients, FedMD uses the scores computed by all clients to compute a consensus on which the clients train. Because of this, FedMD solves both statistical heterogeneity and system heterogeneity.
+
+## 6. Bibliography
+
+[ [1](https://arxiv.org/abs/1602.05629) ] Communication-Efficient Learning of Deep Networks
+from Decentralized Data
+
+[ [2](https://arxiv.org/abs/1910.03581) ] FedMD: Heterogenous Federated Learning
+via Model Distillation
+
+---
+
+---
+
+## Repository description and how to run our experiments
+
+### Repository description
+
+- `./model_implementations`: model architecture implementations and some utilities
+
+- `./data`: CIFAR10 and CIFAR100 splits provided by the teaching assistant
+
+- `./client`: client class implementation, private_dataloader and a document telling the network architecture used by each client
+
+- `./server`: server class implementation
+
+- `./baselines_public_cifar10`: here model checkpoints for each model architecture are stored after training on CIFAR10
+
+- `./upper_baseline_public_cifar100`: here model checkpoints for each model architecture are stored after training on the whole CIFAR100
+
+- `./independent_train_0.0`: here are stored the checkpoints for all 100 clients after transfer learning and training on private dataset under non-i.i.d. condition
+
+- `./independent_train_1000.0`: here are stored the checkpoints for all 100 clients after transfer learning and training on private dataset under i.i.d. condition
+
+- `./fedmd_results_0.0`: FedMD results obtained under non-i.i.d. condition
+
+- `./fedmd_results_1000.0`: FedMD results obtained under i.i.d. condition
+
+- `./notebooks`: notebooks to be run on Google Colab to recreate our experiments
+
+- `./plots`: FedMD results plotted
+
+### Run our experiments
+
+Under `./notebooks` you may find our Jupyter notebooks we wrote to make our experiments.
+
+- `Train_baselines.ipynb`: train the 6 architectures on CIFAR10. It can also be used for training on CIFAR100
+
+- `Independent_client_train.ipynb`: perform transfer learning on all 100 clients and train them on their private datasets
+
+- `FedMD_execution.ipynb`: execute FedMD

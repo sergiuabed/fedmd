@@ -163,6 +163,11 @@ if __name__ == "__main__":
     plot_results(av, alpha, True, describtion="averaged ")
 
     alpha = 0.0
+
+    clients = init_clientStats(upperBounds, alpha)
+    d = best_results(clients)
+    av = averaged_results(clients, upperBounds)
+
     plot_results(d, alpha, False, describtion="best ")
     plot_results(d, alpha, True, describtion="best ")
     plot_results(av, alpha, False, describtion="averaged ")
