@@ -5,6 +5,8 @@ Contributors:
 - Sergiu Abed
 - Riccardo Musumarra
 
+note: At the bottom of this document you can find a brief description of this repository and how to run our experiments.
+
 ## 1. Introduction
 
 Federated learning is a machine learning technique in which multiple models collaborate by sharing their knowledge so that each model can improve its performance when executing a certain task.
